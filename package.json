@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@vite-pwa/astro": "^1.2.0",
+    "qrcode": "^1.5.4"
+  }
+}
