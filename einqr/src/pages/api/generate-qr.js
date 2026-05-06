@@ -1,5 +1,6 @@
 import QRCode from 'qrcode';
 import { Buffer } from 'buffer';
+import pool from '../../lib/db';
 
 export const GET = async ({ cookies }) => {
   const session = cookies.get('session');
@@ -8,10 +9,21 @@ export const GET = async ({ cookies }) => {
     return new Response(JSON.stringify({ message: 'No autorizado' }), { status: 401 });
   }
 
-  // En una app real, aquí generaríamos un token firmado (JWT) con una expiración corta
-  // Por ahora usaremos un identificador con timestamp para demostrar el cambio
+  // Obtener el employee_id real del usuario desde la sesión
+  let employeeId = 'unknown';
+  try {
+    const userId = session.value.replace('user-', '');
+    const [rows] = await pool.execute('SELECT employee_id FROM users WHERE id = ?', [userId]);
+    if (rows.length > 0) {
+      employeeId = rows[0].employee_id;
+    }
+  } catch (e) {
+    console.error("Error obteniendo employee_id para QR:", e);
+  }
+
   const timestamp = Math.floor(Date.now() / 1000);
-  const qrValue = `GAFETE|${session.value}|${timestamp}|${Math.random().toString(36).substring(7)}`;
+  const secretKey = "EINSUR2026";
+  const qrValue = `${employeeId}|${timestamp}|${secretKey}`;
 
   try {
     const qrDataUrl = await QRCode.toDataURL(qrValue, {
