@@ -7,6 +7,11 @@ export default defineConfig({
   adapter: node({
     mode: 'standalone'
   }),
+  vite: {
+    server: {
+      allowedHosts: true
+    }
+  },
   integrations: [
     AstroPWA({
       registerType: 'autoUpdate',
